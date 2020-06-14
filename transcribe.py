@@ -1,6 +1,7 @@
 import argparse
 import warnings
 
+from convert import tokens_to_number
 from opts import add_decoder_args, add_inference_args
 from utils import load_model
 
@@ -61,10 +62,14 @@ if __name__ == '__main__':
     arg_parser.add_argument('--audio-path', default='audio.wav',
                               help='Audio file to predict on')
     arg_parser.add_argument('--offsets', dest='offsets', action='store_true', help='Returns time offset information')
+    arg_parser.add_argument('--mapping_path', default="mapping.json", type=str)
     arg_parser = add_decoder_args(arg_parser)
     args = arg_parser.parse_args()
     device = torch.device("cuda" if args.cuda else "cpu")
     model = load_model(device, args.model_path, args.half)
+
+    with open(args.mapping_path) as fin:
+        mapping = json.load(fin)
 
     if args.decoder == "beam":
         from decoder import BeamCTCDecoder
@@ -83,4 +88,8 @@ if __name__ == '__main__':
                                                  decoder=decoder,
                                                  device=device,
                                                  use_half=args.half)
-    print(json.dumps(decode_results(decoded_output, decoded_offsets)))
+    result = decode_results(decoded_output, decoded_offsets)
+    encoded_tokens = result["output"][0]["transcription"]
+    tokens = [mapping[c] for c in encoded_tokens]
+    number = tokens_to_number(tokens)
+    print(number)
