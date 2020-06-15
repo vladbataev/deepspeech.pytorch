@@ -18,3 +18,5 @@ After that we apply ctc loss based training with tokens like "100", "1000" and e
 ### Inference:
 
 ```python transcribe.py --model-path models/deepspeech_final.pth --audio-path /path/to/audio.wav```
+
+Trained model can be found here: https://drive.google.com/file/d/1jJwyoUxcm-e8_MyOjjo7zBuQ74GALCPh/view?usp=sharing
